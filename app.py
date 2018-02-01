@@ -40,8 +40,10 @@ def webhook():
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
 
-                    send_message(sender_id, "roger that!")
-
+                       reply=predict(message_text)
+                        send_message(sender_id, str(reply))
+                    except:
+                        send_message(sender_id,str("Sorry! I didn't get that."))    
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
 
@@ -52,6 +54,8 @@ def webhook():
                     pass
 
     return "ok", 200
+  except:
+    pass  
 
 
 def send_message(recipient_id, message_text):
@@ -78,17 +82,13 @@ def send_message(recipient_id, message_text):
         log(r.text)
 
 
-def log(msg, *args, **kwargs):  # simple wrapper for logging to stdout on heroku
-    try:
-        if type(msg) is dict:
-            msg = json.dumps(msg)
-        else:
-            msg = unicode(msg).format(*args, **kwargs)
-        print u"{}: {}".format(datetime.now(), msg)
-    except UnicodeEncodeError:
-        pass  # squash logging errors in case of non-ascii text
+def log(message):  # simple wrapper for logging to stdout on heroku
+    print str(message)
     sys.stdout.flush()
 
+def predict(incoming_msg):
+    return predict_reply.classify(incoming_msg);
 
 if __name__ == '__main__':
     app.run(debug=True)
+    #print(predict(raw_input("Enter something")))
